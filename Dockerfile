@@ -25,7 +25,11 @@ RUN apt-get update && apt-get install -y \
   lsb-release \
   xdg-utils
 
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
+
 ENV PUPPETEER_DOWNLOAD_PATH=/usr/local/chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 
 RUN npm install puppeteer
 
