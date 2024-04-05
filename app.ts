@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import bodyParser from 'body-parser';
 import connectDB from './database'; // Import the connectDB function from database.ts
 import { SearchController } from './src/controllers/SeachController';
