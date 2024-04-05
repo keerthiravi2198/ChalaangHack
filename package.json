@@ -16,6 +16,15 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "@tensorflow/tfjs-node": "^4.17.0",
+    "@types/parse5": "^7.0.0",
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "csv-parser": "^3.0.0",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.0",
+    "openai": "^4.32.2",
+    "parse5": "^7.1.2",
+    "puppeteer": "^22.6.2"
   }
 }
