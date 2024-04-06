@@ -19,7 +19,7 @@ export async function searchInt(query: string): Promise<SearchResult[] > {
   const page = await browser.newPage();
 
   try {
-    const searchEngines = [  'google'];
+    const searchEngines = [  'google' ];
     const searchResults: { [key: string]: SearchResult[] } = {};
 
     for (const engine of searchEngines) {

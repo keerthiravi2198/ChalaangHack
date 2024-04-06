@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import connectDB from './database'; // Import the connectDB function from database.ts
-import { SearchController } from './src/controllers/SeachController';
+import { SearchController } from './src/controllers/SearchController';
 import { GetSearchResultController } from './src/controllers/getSearchResult';
 const app = express();
 

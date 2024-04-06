@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import UserHistory from './UserHistory';
-import { ParsedSearchResult } from './SeachController';
+import { ParsedSearchResult } from './SearchController';
 
 export async function GetSearchResultController(req: Request, res: Response) {
     const { id } = req.query;

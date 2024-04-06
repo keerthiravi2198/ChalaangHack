@@ -1,16 +1,17 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { EnumOpenAIModel, OpenAIService } from './OpenAIService'; // Assuming OpenAIService contains the chatCompletion method
 import { SearchResult } from './SearchEngine';
-import { UserHistoryDetails } from './SeachController';
+import { IUserHistory } from './UserHistory';
+
 const openAIService = new OpenAIService();
 
-export async function generateSummary(userQuery: string,searchResults: SearchResult[], userHistoryDetails?: UserHistoryDetails[], userEmail?: string, previousQuerySummary?: string): Promise<string> {
+export async function generateSummary(userQuery: string,searchResults: SearchResult[], userId: string, historicalResults: IUserHistory[]): Promise<string> {
     try {
         const priorMessages: ChatCompletionMessageParam[] = [];
 
         priorMessages.push({
             role: "system",
-            content: `You are coding a function to parse structured data and generate a summary from search engine results for a given query.
+            content: `You are coding a function to parse structured data and generate a summary from search engine results for a given query and historical data. The function should provide a concise and informative summary based on the search results.:
         
             Instructions:
             - Analyze and distill data from the top search engine results given to you.
@@ -28,8 +29,7 @@ export async function generateSummary(userQuery: string,searchResults: SearchRes
             - Do not assume facts not present in the search results if it's about personal data or private information.
             - Make sure the content is joyful to read and not dull or boring.
             - You can add any relevant emoji to make the title and summary more engaging and fun, but don't overdo it.
-            - The System should be capable of understanding user behaviour based on his past search history and his feedbacks provide for the search result he recived.
-            - The System should regenerate a more informed and user currated search result  if user wants requests for another response.
+        
             Response Format:
             - Respond in the JSON format without additional descriptions about why you came up with the particular JSON.
             - Preamble is not required in the response.
@@ -54,26 +54,21 @@ export async function generateSummary(userQuery: string,searchResults: SearchRes
             `,
         });
 
-        let userContent = `Search results from the search engine:
-        ${searchResults.map((result, index) => `${index + 1}. ${result.title}\nDescription: ${result.description}\nURL: ${result.link}`).join('\n\n')}
-    `;
-
-        //request of regenerate
-        if(userHistoryDetails && userHistoryDetails.length) {
-           
-            userContent += `Below is user search history, use this to understand user behaviour : 
-                    ${userHistoryDetails.map((result, index) => `${index + 1}. ${result.query}\nSearch result: ${result.searchResult}\nUser feedback: ${result.feedback}`).join('\n\n')}
-                    `;
-        }
-        if(previousQuerySummary) {
-            userContent += `Below is the response user received for the query previously, give a regenerated and improved response : 
-                    ${previousQuerySummary}
-                    `;
-        }
         priorMessages.push({
             role: "user",
-            content: userContent,
+            content: `Search results from the search engine:
+                ${searchResults.map((result, index) => `${index + 1}. ${result.title}\nDescription: ${result.description}\nURL: ${result.link}`).join('\n\n')}
+            `,
         });
+
+        if (historicalResults.length > 0) {
+           priorMessages.push({
+                role: "user",
+                content: `Previous search results from the user:
+                ${historicalResults.map((result, index) => `${index + 1}. ${result.query}\nSearch Result: ${result.searchResult}`).join('\n\n')}
+                `,
+            });
+        }
 
         priorMessages.push({
             role: "assistant",
@@ -86,7 +81,7 @@ export async function generateSummary(userQuery: string,searchResults: SearchRes
             model: EnumOpenAIModel.gpt4Turbo,
             maxTokens: 4096,
             temperature: 0.7,
-            userId: userEmail ?? '',
+            userId: userId ?? '',
         });
 
         var summary = response.choices?.[0].message?.content ?? '';

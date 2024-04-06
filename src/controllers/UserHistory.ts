@@ -1,12 +1,19 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { SearchResult } from './SearchEngine';
-import { ParsedSearchResult } from "./SeachController";
+
+
+export enum EnumUserFeedback {
+    UPVOTE = 'upvote',
+    DOWNVOTE = 'downvote',
+    NEUTRAL = 'neutral',
+}
+
+
 export interface IUserHistory extends Document {
     userEmail: string;
     query: string;
     timestamp: Date;
     searchResult: string;
-    feedback: boolean;
+    feedback: EnumUserFeedback;
 }
 
 const UserHistorySchema: Schema = new Schema({
@@ -14,7 +21,7 @@ const UserHistorySchema: Schema = new Schema({
     query: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     searchResult: {type: String},
-    feedback: { type: Boolean, require: false }
+    feedback: { type: String, require: false }
     }, 
     {
     timestamps: true
