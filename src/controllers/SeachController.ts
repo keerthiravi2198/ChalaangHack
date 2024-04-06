@@ -3,6 +3,17 @@ import { SearchResult, searchInt } from './SearchEngine';
 import UserHistory from './UserHistory';
 import { generateSummary } from './GenerateSummary';
 
+
+export interface ParsedSearchResult {
+    generatedTitle: string;
+    generatedBrief: string;
+    generatedSummary: string;
+    linksToShow: {
+        title: string;
+        link: string;
+        whyRelevant: string;
+    }[];
+}
 export async function SearchController(req: Request, res: Response) {
     const { userEmail, query } = req.body;
 
@@ -33,10 +44,13 @@ export async function SearchController(req: Request, res: Response) {
 
         //pass the search results to the open ai service
         const summary = await generateSummary(searchResults, userEmail);
+        const finalSummaryString = summary.replace("```json", "").replace("```", "");
+        console.log('Summary:', finalSummaryString);
 
-        console.log('Summary:', summary);
+        //parse the summary string to JSON
+        const parsedSummary: ParsedSearchResult = JSON.parse(finalSummaryString);
 
-        res.status(200).json({ success: true, results: searchResults });
+        res.status(200).json({ success: true, results: parsedSummary });
     } catch (error) {
         console.error('Error in searchController:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
