@@ -43,11 +43,11 @@ export async function SearchController(req: Request, res: Response) {
         }
 
         //pass the search results to the open ai service
-        const summary = await generateSummary(searchResults, userEmail);
+        const summary = await generateSummary(searchResults.filter((result) => result!==null)
+            , userEmail);
         const finalSummaryString = summary.replace("```json", "").replace("```", "");
         console.log('Summary:', finalSummaryString);
 
-        //parse the summary string to JSON
         const parsedSummary: ParsedSearchResult = JSON.parse(finalSummaryString);
 
         res.status(200).json({ success: true, results: parsedSummary });

@@ -64,7 +64,6 @@ export async function generateSummary(searchResults: SearchResult[], userId?: st
             `,
         });
 
-        console.log("before chat completion");
         var response = await openAIService.chatCompletion({
             messages: priorMessages,
             model: EnumOpenAIModel.gpt4Turbo,
@@ -72,7 +71,6 @@ export async function generateSummary(searchResults: SearchResult[], userId?: st
             temperature: 0.7,
             userId: userId ?? '',
         });
-        console.log("after chat completion", response);
 
         var summary = response.choices?.[0].message?.content ?? '';
 

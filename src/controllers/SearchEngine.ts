@@ -1,5 +1,5 @@
-import axios from 'axios';
 import puppeteer from 'puppeteer';
+import axios from 'axios';
 
 export interface SearchResult {
   title: string;
@@ -8,7 +8,7 @@ export interface SearchResult {
   description: string;
 }
 
-export async function searchInt(query: string): Promise<SearchResult[]> {
+export async function searchInt(query: string): Promise<SearchResult[] > {
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -19,36 +19,74 @@ export async function searchInt(query: string): Promise<SearchResult[]> {
   const page = await browser.newPage();
 
   try {
-    await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
-    //  await page.goto(`https://www.bing.com/search?q=${encodeURIComponent(query)}`);
+    const searchEngines = [  'google'];
+    const searchResults: { [key: string]: SearchResult[] } = {};
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const results: SearchResult[] = await page.evaluate(() => {
-      const searchItems: HTMLElement[] = Array.from(document.querySelectorAll('.g'));
-
-      return searchItems.map(item => ({
-        title: item.querySelector('h3')?.textContent || '',
-        snippet: item.querySelector('div.IsZvec')?.textContent || '',
-        link: item.querySelector('a')?.href || '',
-        description: item.querySelector('span.st')?.textContent || '',
-      }));
-    });
-
-    // Fetch meta descriptions for each search result using promises
-    await Promise.all(results.map(async (result) => {
-      try {
-        const metaDescription = await getMetaDescription(result.link);
-        console.log('Meta description for', result.link, ':', metaDescription);
-        result.description = metaDescription;
-      } catch (error) {
-        console.error('Error fetching meta description for', result.link, ':', error);
-        result.description = '';
+    for (const engine of searchEngines) {
+      let searchUrl: string;
+      switch (engine) {
+        case 'google':
+          searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)},`;
+          break;
+        case 'bing':
+          searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+          break;
+        case 'duckduckgo':
+          searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+          break;
+        default:
+          throw new Error('Invalid search engine specified');
       }
-    }));
-    //sort the results by description in descending order
-    results.sort((a, b) => b.description.length - a.description.length);
-    return results;
+
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
+
+      // Wait for the search results container to appear based on the search engine
+      let selector: string;
+      switch (engine) {
+        case 'google':
+          selector = '.g';
+          break;
+        case 'bing':
+          selector = '.b_algo';
+          break;
+        case 'duckduckgo':
+          selector = '.result';
+          break;
+        default:
+          throw new Error('Invalid search engine specified');
+      }
+      await page.waitForSelector(selector);
+
+      const results: SearchResult[] = await page.evaluate((sel) => {
+        const searchItems: HTMLElement[] = Array.from(document.querySelectorAll(sel));
+
+        return searchItems.map(item => ({
+          title: item.querySelector('h3')?.textContent || '',
+          snippet: item.querySelector('div.IsZvec')?.textContent || '',
+          link: item.querySelector('a')?.href || '',
+          description: item.querySelector('span.st')?.textContent || '',
+        })).filter(result => result.title && result.link); // Filter out null or empty title/link
+      }, selector);
+
+      // Fetch meta descriptions for each search result using promises
+      await Promise.all(results.map(async (result) => {
+        try {
+          const metaDescription = await getMetaDescription(result.link);
+          console.log('Meta description for', result.link, ':', metaDescription);
+          result.description = metaDescription;
+        } catch (error) {
+          console.error('Error fetching meta description for', result.link, ':', error);
+          result.description = '';
+        }
+      }));
+
+      // Sort the results by description length in descending order
+      results.sort((a, b) => b.description.length - a.description.length);
+
+      searchResults[engine] = results;
+    }
+
+    return searchResults.google;
   } catch (error) {
     console.error('Error fetching search results:', error);
     return [];
@@ -76,8 +114,5 @@ async function getMetaDescription(url: string): Promise<string> {
     return '';
   }
 }
-
-
-
 
 
