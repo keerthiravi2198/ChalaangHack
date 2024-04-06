@@ -29,9 +29,10 @@ export async function SearchController(req: Request, res: Response) {
     try {
 
         //handle regeneration flow as well.
+        let previousQuerySummary;
         if(id) { 
             const queryResult = await UserHistory.findById({ id }).exec();
-            
+            previousQuerySummary = queryResult?.searchResult;
         }
 
         //use top historic data of that user to improve/ provide customisable results.
@@ -54,7 +55,8 @@ export async function SearchController(req: Request, res: Response) {
             query,
             searchResults.filter((result) => result!==null),
             userHistoryDetailsWithFeedback, 
-            userEmail);
+            userEmail,
+            previousQuerySummary);
         const finalSummaryString = summary.replace("```json", "").replace("```", "");
         console.log('Summary:', finalSummaryString);
 
