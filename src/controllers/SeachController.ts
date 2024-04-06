@@ -19,10 +19,9 @@ export interface UserHistoryDetails {
     searchResult: any,
     query: string,
     feedback?:  "happy with response" | "not happy with the response" | "user is ok with the response recived"
+
 }
 export async function SearchController(req: Request, res: Response) {
-
-
 
     const { userEmail, query, id } = req.body;
     //
