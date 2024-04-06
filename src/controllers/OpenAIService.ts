@@ -2,7 +2,7 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources";
 
-const openAIClient = new OpenAI({ apiKey: `${process.env.OPENAI_API_KEY}` });
+const openAIClient = new OpenAI({ apiKey: "k-0kH13M9bAHQopdTOHeZ6T3BlbkFJmMbuydP3utWdlDWgeFhF" });
 
 export enum EnumOpenAIModel {
   gpt4 = "gpt-4",

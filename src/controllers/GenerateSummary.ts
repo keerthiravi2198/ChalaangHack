@@ -1,10 +1,10 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { EnumOpenAIModel, OpenAIService } from './OpenAIService'; // Assuming OpenAIService contains the chatCompletion method
 import { SearchResult } from './SearchEngine';
-
+import { UserHistoryDetails } from './SeachController';
 const openAIService = new OpenAIService();
 
-export async function generateSummary(userQuery: string,searchResults: SearchResult[], userId?: string): Promise<string> {
+export async function generateSummary(userQuery: string,searchResults: SearchResult[], userHistoryDetails?: UserHistoryDetails[], userEmail?: string): Promise<string> {
     try {
         const priorMessages: ChatCompletionMessageParam[] = [];
 
@@ -71,7 +71,7 @@ export async function generateSummary(userQuery: string,searchResults: SearchRes
             model: EnumOpenAIModel.gpt4Turbo,
             maxTokens: 4096,
             temperature: 0.7,
-            userId: userId ?? '',
+            userId: userEmail ?? '',
         });
 
         var summary = response.choices?.[0].message?.content ?? '';
