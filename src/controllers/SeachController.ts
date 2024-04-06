@@ -60,8 +60,7 @@ export async function SearchController(req: Request, res: Response) {
 
         const parsedSummary: ParsedSearchResult = JSON.parse(finalSummaryString);
 
-        await UserHistory.create({ userEmail, query, searchResult: parsedSummary , timestamp: Date.now() });
-
+        await UserHistory.create({ userEmail, query, searchResult: finalSummaryString , timestamp: Date.now() });
 
         res.status(200).json({ success: true, results: parsedSummary });
 

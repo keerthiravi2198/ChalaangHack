@@ -5,7 +5,7 @@ export interface IUserHistory extends Document {
     userEmail: string;
     query: string;
     timestamp: Date;
-    searchResult: SearchResult[];
+    searchResult: string;
     feedback: boolean;
 }
 
