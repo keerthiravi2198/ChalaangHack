@@ -4,13 +4,13 @@ import { SearchResult } from './SearchEngine';
 
 const openAIService = new OpenAIService();
 
-export async function generateSummary(searchResults: SearchResult[], userId?: string): Promise<string> {
+export async function generateSummary(userQuery: string,searchResults: SearchResult[], userId?: string): Promise<string> {
     try {
         const priorMessages: ChatCompletionMessageParam[] = [];
 
         priorMessages.push({
             role: "system",
-            content: `You are coding a function to parse structured data and generate a summary from search engine results.
+            content: `You are coding a function to parse structured data and generate a summary from search engine results for a given query.
         
             Instructions:
             - Analyze and distill data from the top search engine results given to you.
@@ -18,14 +18,16 @@ export async function generateSummary(searchResults: SearchResult[], userId?: st
             - Filter out noise and prioritize valuable insights from the search results.
 
             Rules:
+            - The search results are based on the user's query and should be accurately summarized.
             - The summary should be concise, informative, and well-structured.
             - Include key details and highlights from the search results.
             - Avoid redundancy and irrelevant information in the summary.
             - Ensure that the summary is easy to read and understand.
-            - Do not hallucinate or generate false information.
+            - Do not hallucinate or generate false information in the summary or title or linksToShow.
+            - Do not generate irrelevant links in the linksToShow section.
             - Do not assume facts not present in the search results if it's about personal data or private information.
             - Make sure the content is joyful to read and not dull or boring.
-            - You can add any relevant emoji to make the title and summary more engaging.
+            - You can add any relevant emoji to make the title and summary more engaging and fun, but don't overdo it.
         
             Response Format:
             - Respond in the JSON format without additional descriptions about why you came up with the particular JSON.

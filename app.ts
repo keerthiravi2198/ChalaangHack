@@ -3,14 +3,17 @@ import bodyParser from 'body-parser';
 import connectDB from './database'; // Import the connectDB function from database.ts
 import { SearchController } from './src/controllers/SeachController';
 
-// Initialize Express app
 const app = express();
 
-// Middleware
 app.use(bodyParser.json());
 
-// Routes
-app.post('/search', SearchController); // Assuming this route handles search requests
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+app.post('/search', SearchController);
+
 
 // Start the server
 const PORT = 3000;
